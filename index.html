@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>수업 녹취 정리기</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: 작업대형 2단 대시보드. 왼쪽은 입력(1~3단계), 오른쪽은 결과(4단계·통계·노션 미리보기). 좁은 화면에선 1단 + 하단 고정 복사 바 */
+:root {
+  --bg: #EDF0F3;
+  --surface: #FFFFFF;
+  --surface-2: #F5F7F9;
+  --line: #D6DDE4;
+  --fg: #17202B;
+  --muted: #5A6676;
+  --primary: #1E5A86;
+  --primary-hover: #174A70;
+  --primary-fg: #FFFFFF;
+  --primary-soft: #E3EEF6;
+  --mark: #F5D85A;
+  --mark-fg: #3A2E00;
+  --ok: #2E7A4D;
+  --warn: #9C5A06;
+  --code-bg: #F1EFEA;
+  --code-fg: #B4413A;
+  --hl-bg: #FBEFB8;
+  --shadow: 0 1px 2px rgba(23, 32, 43, .06), 0 4px 16px rgba(23, 32, 43, .05);
+  --font-sans: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", "D2Coding", ui-monospace, Consolas, monospace;
+  --r: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0F1419; --surface: #171D24; --surface-2: #1C242D; --line: #2B3642;
+    --fg: #E3E8EE; --muted: #93A0AF; --primary: #6CB0E2; --primary-hover: #8AC2EA;
+    --primary-fg: #0B1520; --primary-soft: #1A2C3B; --mark: #E0C04A; --mark-fg: #1C1600;
+    --ok: #62C08B; --warn: #E3A04A; --code-bg: #2A2723; --code-fg: #F08A80; --hl-bg: #3A3216; --shadow: 0 1px 2px rgba(0,0,0,.3);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0F1419; --surface: #171D24; --surface-2: #1C242D; --line: #2B3642;
+  --fg: #E3E8EE; --muted: #93A0AF; --primary: #6CB0E2; --primary-hover: #8AC2EA;
+  --primary-fg: #0B1520; --primary-soft: #1A2C3B; --mark: #E0C04A; --mark-fg: #1C1600;
+  --ok: #62C08B; --warn: #E3A04A; --code-bg: #2A2723; --code-fg: #F08A80; --hl-bg: #3A3216; --shadow: 0 1px 2px rgba(0,0,0,.3);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--font-sans); font-size: 15px; line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap {
+  max-width: 1280px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+/* 상단 바 */
+.topbar { background: var(--surface); border-bottom: 1px solid var(--line); }
+.topbar-in { display: flex; align-items: center; justify-content: space-between; gap: 12px 20px; flex-wrap: wrap; padding-block: 14px; }
+.brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.logo { width: 38px; height: 38px; border-radius: 9px; background: var(--primary); color: var(--primary-fg); display: grid; place-items: center; flex: none; }
+.brand h1 { margin: 0; font-size: 19px; font-weight: 700; letter-spacing: -.01em; line-height: 1.2; }
+.brand h1 mark { background: linear-gradient(transparent 55%, var(--mark) 55%); color: inherit; padding: 0 2px; }
+.brand p { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
+.flow { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted); }
+.flow span { border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; background: var(--surface-2); }
+.flow span.me { border-color: var(--primary); color: var(--primary); background: var(--primary-soft); font-weight: 600; }
+
+/* 본문 그리드 */
+.grid { display: grid; gap: 18px; padding-block: 18px 28px; grid-template-columns: minmax(0, 1fr); align-items: start; }
+@media (min-width: 960px) { .grid { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); } }
+.col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--shadow); padding: 16px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.card-head { display: flex; align-items: center; gap: 10px; }
+.card-head h2 { margin: 0; font-size: 15.5px; font-weight: 600; }
+.card-head .sub { color: var(--muted); font-size: 12.5px; }
+.head-actions { margin-left: auto; display: flex; gap: 6px; }
+.step { width: 24px; height: 24px; border-radius: 50%; flex: none; display: grid; place-items: center; font: 600 12.5px/1 var(--font-mono); background: var(--primary-soft); color: var(--primary); }
+
+/* 버튼 */
+.btn { border: 1px solid transparent; border-radius: 8px; padding: 9px 14px; font-weight: 600; font-size: 14px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: background-color .15s, border-color .15s, transform .05s; text-decoration: none; }
+.btn:active { transform: translateY(1px); }
+.btn.primary { background: var(--primary); color: var(--primary-fg); }
+.btn.primary:hover { background: var(--primary-hover); }
+.btn.outline { background: var(--surface); border-color: var(--line); color: var(--fg); }
+.btn.outline:hover { border-color: var(--primary); color: var(--primary); }
+.btn.ghost { background: transparent; color: var(--muted); }
+.btn.ghost:hover { background: var(--surface-2); color: var(--fg); }
+.btn.sm { padding: 5px 10px; font-size: 13px; font-weight: 500; }
+.btn.lg { padding: 13px 18px; font-size: 16px; }
+.btn.block { width: 100%; }
+.btn .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--mark); display: none; }
+.btn.dirty .dot { display: inline-block; }
+.btn.primary.confirm { background: var(--warn); color: var(--primary-fg); }
+
+/* 업로드 */
+.drop { border: 1.5px dashed var(--line); border-radius: var(--r); background: var(--surface-2); padding: 18px 14px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; transition: border-color .15s, background-color .15s; }
+.drop.over { border-color: var(--primary); background: var(--primary-soft); }
+.drop-acts { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; align-items: center; margin-top: 8px; }
+.drop svg { color: var(--primary); margin-bottom: 2px; }
+.drop strong { font-size: 14px; font-weight: 600; }
+.drop span { font-size: 12.5px; color: var(--muted); word-break: break-all; }
+
+.field-label { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--muted); }
+.badge { font-size: 11.5px; font-weight: 600; letter-spacing: .02em; padding: 2px 8px; border-radius: 999px; background: var(--mark); color: var(--mark-fg); }
+.title-row { display: flex; align-items: center; gap: 8px 10px; flex-wrap: wrap; padding: 8px 10px; border-radius: 8px; background: var(--surface-2); }
+.title-row code { font: 600 15px var(--font-mono); color: var(--fg); overflow-wrap: anywhere; flex: 1 1 auto; min-width: 0; }
+textarea, input[type="text"], input[type="date"], input[type="number"], select {
+  width: 100%; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 9px 11px; min-width: 0;
+}
+textarea { resize: vertical; line-height: 1.6; font-size: 14px; }
+textarea:focus, input:focus, select:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px var(--primary-soft); }
+textarea.mono { font-family: var(--font-mono); font-size: 13px; }
+.meta-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+/* 수업 선택 */
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.seg input { position: absolute; opacity: 0; pointer-events: none; }
+.seg label { border: 1px solid var(--line); border-radius: 8px; padding: 7px 14px; cursor: pointer; font-size: 14px; font-weight: 500; background: var(--surface); }
+.seg input:checked + label { background: var(--primary); border-color: var(--primary); color: var(--primary-fg); }
+.seg input:focus-visible + label { outline: 2px solid var(--primary); outline-offset: 2px; }
+.row2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
+@media (max-width: 480px) { .row2 { grid-template-columns: minmax(0, 1fr); } }
+.field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.emph { border-left: 4px solid var(--mark); }
+
+details { border-top: 1px solid var(--line); padding-top: 10px; }
+summary { cursor: pointer; font-size: 13px; color: var(--muted); font-weight: 500; }
+details[open] summary { margin-bottom: 10px; }
+
+/* 옵션 */
+.opts { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
+@media (max-width: 480px) { .opts { grid-template-columns: minmax(0, 1fr); } }
+.opt { display: flex; gap: 9px; align-items: flex-start; padding: 9px 10px; border: 1px solid var(--line); border-radius: 8px; cursor: pointer; background: var(--surface); }
+.opt:has(input:checked) { border-color: var(--primary); background: var(--primary-soft); }
+.opt input { margin: 3px 0 0; accent-color: var(--primary); width: 16px; height: 16px; flex: none; }
+.opt b { display: block; font-size: 13.5px; font-weight: 600; }
+.opt small { display: block; font-size: 12px; color: var(--muted); line-height: 1.4; }
+.selects { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
+@media (max-width: 480px) { .selects { grid-template-columns: minmax(0, 1fr); } }
+.selects select { padding: 7px 9px; font-size: 13.5px; }
+
+/* 통계 */
+.stats { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 11px 13px; min-width: 0; }
+.stat .k { font-size: 12px; color: var(--muted); }
+.stat .v { font: 500 20px/1.25 var(--font-mono); font-variant-numeric: tabular-nums; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stat .v small { font-size: 12px; color: var(--muted); margin-left: 2px; }
+.stat.hero { background: var(--primary-soft); border-color: transparent; }
+.stat.hero .v { color: var(--primary); font-weight: 600; }
+@media (max-width: 620px) {
+  .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .stat.hero { grid-column: span 2; }
+}
+
+/* 복사 카드 */
+.copycard { flex-direction: row; align-items: center; flex-wrap: wrap; gap: 12px 16px; }
+.copycard .info { flex: 1 1 220px; min-width: 0; }
+.copycard .info b { font-size: 15px; }
+.copycard .info p { margin: 2px 0 0; font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.copycard .acts { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+@media (max-width: 959px) {
+  .grid { padding-bottom: 120px; }
+  .copycard {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; border-radius: 0; border-width: 1px 0 0;
+    padding: 10px max(16px, env(safe-area-inset-right, 0px)) calc(10px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+    box-shadow: 0 -4px 16px rgba(0,0,0,.08);
+  }
+  .copycard .step, .copycard .wide-only { display: none; }
+  .copycard .info p { display: none; }
+  .copycard .info { flex: 1 1 0; }
+}
+
+/* 탭 */
+.tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--line); overflow-x: auto; margin: -4px -16px 0; padding: 0 12px; }
+.tab { background: none; border: 0; border-bottom: 2px solid transparent; padding: 10px 12px; font-size: 14px; font-weight: 500; color: var(--muted); cursor: pointer; white-space: nowrap; margin-bottom: -1px; }
+.tab[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--primary); font-weight: 600; }
+.tab .n { font: 500 11.5px var(--font-mono); color: var(--muted); margin-left: 4px; }
+.pane { display: flex; flex-direction: column; gap: 10px; }
+.pane textarea.big { min-height: 340px; height: 56vh; }
+.hint { font-size: 12.5px; color: var(--muted); margin: 0; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.chip { font: 500 12.5px var(--font-mono); border: 1px dashed var(--line); background: var(--surface-2); border-radius: 6px; padding: 3px 8px; cursor: pointer; }
+.chip:hover { border-color: var(--primary); color: var(--primary); }
+.spacer { flex: 1; }
+
+/* 노션 미리보기 */
+.doc p.hl { font-weight: 700; background: var(--hl-bg); border-radius: 4px; padding: 2px 6px; margin-inline: -6px; }
+.doc { position: relative; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); padding: 22px clamp(16px, 4vw, 44px); min-height: 340px; max-height: 64vh; overflow: auto; line-height: 1.7; overflow-wrap: anywhere; }
+.doc > :first-child { margin-top: 0; }
+.doc h1 { font-size: 26px; line-height: 1.3; font-weight: 700; margin: 0 0 10px; text-wrap: balance; }
+.doc h2 { font-size: 19px; font-weight: 600; margin: 26px 0 6px; }
+.doc h3 { font-size: 15.5px; font-weight: 600; margin: 22px 0 4px; font-variant-numeric: tabular-nums; color: var(--primary); }
+.doc p { margin: 4px 0; }
+.doc blockquote { margin: 10px 0; padding: 2px 0 2px 14px; border-left: 3px solid var(--fg); }
+.doc hr { border: 0; border-top: 1px solid var(--line); margin: 18px 0; }
+.doc ul { margin: 4px 0; padding-left: 22px; }
+.doc code { font-family: var(--font-mono); font-size: .88em; background: var(--code-bg); color: var(--code-fg); padding: 1px 5px; border-radius: 4px; }
+
+/* 토스트 */
+.toast {
+  position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 20px);
+  background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 8px; font-size: 14px; font-weight: 500;
+  opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; z-index: 50; max-width: calc(100% - 32px); text-align: center;
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+@media (max-width: 959px) { .toast { bottom: calc(90px + env(safe-area-inset-bottom, 0px)); } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap topbar-in">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 8v4M6.5 5v10M10 2.5v15M13.5 6v8M17 8.5v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </span>
+      <div>
+        <h1>수업 녹취 <mark>정리기</mark></h1>
+        <p>클로바노트 전문을 노션에 바로 붙일 수 있게 다듬어 줍니다 · 인터넷 없이 작동</p>
+      </div>
+    </div>
+    <div class="flow" aria-label="작업 흐름"><span>클로바노트</span>→<span class="me">전처리</span>→<span>노션</span></div>
+  </div>
+</header>
+
+<main class="wrap grid">
+  <!-- 왼쪽: 입력 -->
+  <section class="col" aria-label="입력">
+    <div class="card">
+      <div class="card-head">
+        <span class="step">1</span><h2>녹취록 넣기</h2>
+        <div class="head-actions">
+          <button class="btn ghost sm" id="btn-sample" type="button">예시 불러오기</button>
+          <button class="btn ghost sm" id="btn-clear" type="button">비우기</button>
+        </div>
+      </div>
+      <div class="drop" id="drop">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="6" y="4" width="12" height="17" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M9 4.5V3.5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1M9.5 10h5M9.5 13.5h5M9.5 17h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <strong>클로바노트에서 복사한 내용을 그대로 붙여넣으세요</strong>
+        <span>이 화면 아무 곳에서나 Ctrl+V (Mac ⌘V) · 폰은 아래 칸을 길게 눌러 ‘붙여넣기’</span>
+        <div class="drop-acts">
+          <button class="btn primary" id="btn-paste" type="button">클립보드에서 붙여넣기</button>
+          <label class="btn ghost sm" for="file">txt 파일 열기</label>
+        </div>
+        <input type="file" id="file" accept=".txt,text/plain" multiple hidden>
+        <span id="file-name" hidden></span>
+      </div>
+      <label class="field-label" for="raw">붙여넣은 원문 <span class="badge" id="sample-badge" hidden>예시 데이터</span></label>
+      <textarea id="raw" rows="9" placeholder="여기를 누르고 Ctrl+V (폰은 길게 눌러 붙여넣기)"></textarea>
+      <div class="meta-row"><span id="raw-count">0자</span><span id="raw-lines">0줄</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><span class="step">2</span><h2>노션 페이지 정보</h2><span class="sub">문서 맨 위 머리말이 됩니다</span></div>
+      <div class="field">
+        <span class="field-label">수업 종류</span>
+        <div class="seg" role="radiogroup" aria-label="수업 종류">
+          <input type="radio" name="lesson" id="lesson-1" value="화용" checked><label for="lesson-1">화용</label>
+          <input type="radio" name="lesson" id="lesson-2" value="VBA"><label for="lesson-2">VBA</label>
+          <input type="radio" name="lesson" id="lesson-3" value="놀이"><label for="lesson-3">놀이</label>
+          <input type="radio" name="lesson" id="lesson-4" value="어린이집"><label for="lesson-4">어린이집</label>
+          <input type="radio" name="lesson" id="lesson-5" value="기타"><label for="lesson-5">기타</label>
+        </div>
+        <input type="text" id="lesson-custom" placeholder="기타 수업 이름 (비우면 ‘기타’)" hidden>
+        <p class="hint" id="lesson-note">녹음 날짜가 화요일이면 VBA, 목·토요일이면 화용이 자동으로 골라져요. 다르면 눌러서 바꾸세요.</p>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label class="field-label" for="date">녹음 날짜</label>
+          <input type="date" id="date">
+        </div>
+        <div class="field">
+          <label class="field-label" for="round">회차</label>
+          <input type="number" id="round" min="1" step="1" inputmode="numeric" placeholder="예: 26">
+        </div>
+      </div>
+      <div class="title-row">
+        <span class="field-label">노션 제목</span>
+        <code id="title-preview">–</code>
+        <button class="btn ghost sm" id="btn-copy-title" type="button">제목 복사</button>
+      </div>
+      <div class="field">
+        <label class="field-label" for="period">교시 · 단원 (선택)</label>
+        <input type="text" id="period" placeholder="예: 대화 차례 주고받기">
+      </div>
+      <div class="field">
+        <label class="field-label" for="emph">선생님 코멘트 강조점</label>
+        <textarea id="emph" class="emph" rows="3" placeholder="한 줄에 하나씩. 예: 대화 차례 주고받기 → 시험 출제"></textarea>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><span class="step">3</span><h2>노이즈 정리 &amp; 노션 서식</h2></div>
+      <div class="opts">
+        <label class="opt"><input type="checkbox" id="o-fillers" checked><span><b>추임새 제거</b><small>어…, 음…, 그니까 등 아래 목록</small></span></label>
+        <label class="opt"><input type="checkbox" id="o-ts" checked><span><b>발언별 시간 제거</b><small>00:18 같은 표시 (구간 소제목엔 남음)</small></span></label>
+        <label class="opt"><input type="checkbox" id="o-hes" checked><span><b>말끝 흐림 제거</b><small>그…, 저… 처럼 한 글자 + 말줄임</small></span></label>
+        <label class="opt"><input type="checkbox" id="o-dup" checked><span><b>반복 단어 정리</b><small>이거 이거 → 이거</small></span></label>
+        <label class="opt"><input type="checkbox" id="o-merge" checked><span><b>같은 화자 합치기</b><small>연속 발언을 한 문단으로</small></span></label>
+        <label class="opt"><input type="checkbox" id="o-split" checked><span><b>긴 문단 나누기</b><small>노션 블록이 너무 길지 않게 문장 단위로</small></span></label>
+        <label class="opt"><input type="checkbox" id="o-header" checked><span><b>녹음 정보 줄 정리</b><small>날짜·길이 줄은 빼고 머리말로 옮김</small></span></label>
+        <label class="opt"><input type="checkbox" id="o-meta" checked><span><b>머리말 넣기</b><small>제목·수업 정보·강조점</small></span></label>
+      </div>
+      <div class="selects">
+        <div class="field">
+          <label class="field-label" for="o-seg">구간 소제목</label>
+          <select id="o-seg">
+            <option value="0">없음</option>
+            <option value="5">5분마다</option>
+            <option value="10" selected>10분마다</option>
+            <option value="15">15분마다</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field-label" for="o-speaker">화자 표시</label>
+          <select id="o-speaker">
+            <option value="keep">굵은 이름 붙이기</option>
+            <option value="drop">빼고 본문만</option>
+          </select>
+        </div>
+      </div>
+      <details open>
+        <summary>이름 교정 (음성 인식이 잘못 받아 적은 이름)</summary>
+        <div class="field">
+          <textarea id="fix-list" class="mono" rows="2" aria-label="이름 교정 목록"></textarea>
+          <div class="meta-row"><span id="fix-count">한 줄에 하나씩 · 틀린 말, 틀린 말 → 바른 말</span><button class="btn ghost sm" id="btn-fix-reset" type="button">기본값</button></div>
+          <p class="hint">따로 쓰였거나(도아 엄마) 조사·엄마·아빠가 붙은 경우(도아야, 소화가, 도아엄마) 바꿉니다. ‘도와줘’, ‘도화지’, ‘소아과’ 같은 낱말과, 앞뒤를 보아 원래 뜻으로 쓰인 말(소화가 잘 돼, 좀 도와, 도와야 해, 소아 환자)은 그대로 둡니다.</p>
+        </div>
+      </details>
+      <details>
+        <summary>추임새 목록 편집</summary>
+        <div class="field">
+          <textarea id="filler-list" class="mono" rows="3" aria-label="추임새 목록"></textarea>
+          <div class="meta-row"><span>쉼표로 구분 · 단어 단위로만 지워서 ‘어제’, ‘음식’은 안전해요</span><button class="btn ghost sm" id="btn-filler-reset" type="button">기본값</button></div>
+        </div>
+      </details>
+      <button class="btn primary lg block" id="btn-clean" type="button"><span class="dot"></span><span id="btn-clean-label">노이즈 정리하기</span></button>
+    </div>
+  </section>
+
+  <!-- 오른쪽: 결과 -->
+  <section class="col" aria-label="결과">
+    <div class="stats" aria-live="polite">
+      <div class="stat hero"><div class="k">줄어든 분량</div><div class="v" id="s-red">–</div></div>
+      <div class="stat"><div class="k">원본</div><div class="v" id="s-raw">0<small>자</small></div></div>
+      <div class="stat"><div class="k">정리 후</div><div class="v" id="s-clean">0<small>자</small></div></div>
+      <div class="stat"><div class="k">추임새 제거</div><div class="v" id="s-fill">0<small>개</small></div></div>
+      <div class="stat"><div class="k">타임스탬프</div><div class="v" id="s-ts">0<small>개</small></div></div>
+    </div>
+
+    <div class="card copycard">
+      <span class="step">4</span>
+      <div class="info">
+        <b>노션에 붙여넣기</b>
+        <p id="final-info">0자 · 블록 0개</p>
+      </div>
+      <div class="acts">
+        <button class="btn ghost sm wide-only" id="btn-copy-md" type="button">마크다운으로 복사</button>
+        <a class="btn outline wide-only" href="https://www.notion.so/" target="_blank" rel="noopener">노션 열기 ↗</a>
+        <button class="btn primary lg" id="btn-copy" type="button">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2" stroke="currentColor" stroke-width="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" stroke="currentColor" stroke-width="2"/></svg>
+          클립보드에 복사하기
+        </button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="tabs" role="tablist">
+        <button class="tab" role="tab" id="tab-preview" aria-controls="pane-preview" aria-selected="true" type="button">노션 미리보기<span class="n" id="n-blocks">0</span></button>
+        <button class="tab" role="tab" id="tab-edit" aria-controls="pane-edit" aria-selected="false" type="button">본문 직접 고치기<span class="n" id="n-clean">0</span></button>
+        <button class="tab" role="tab" id="tab-prompt" aria-controls="pane-prompt" aria-selected="false" type="button">Claude 요약 프롬프트 (선택)</button>
+      </div>
+
+      <div class="pane" id="pane-preview" role="tabpanel" aria-labelledby="tab-preview">
+        <div class="doc" id="doc"></div>
+        <p class="hint">노션 빈 페이지 본문에 붙여넣으면 이 모양 그대로 제목·인용·구분선·소제목 블록이 만들어집니다. 맨 위 제목은 페이지 제목 칸으로 옮겨도 됩니다.</p>
+      </div>
+
+      <div class="pane" id="pane-edit" role="tabpanel" aria-labelledby="tab-edit" hidden>
+        <textarea id="clean" class="big" aria-label="정리된 본문 (마크다운)" placeholder="왼쪽에서 녹취록을 넣고 ‘노이즈 정리하기’를 누르면 여기에 본문이 나옵니다."></textarea>
+        <p class="hint">녹취 전문 부분만 들어 있습니다. 머리말은 2단계 입력값으로 자동 생성돼요. <code>### </code>는 소제목, <code>**굵게**</code>, 빈 줄은 블록 구분입니다. 한 번 고치면 옵션을 바꿔도 자동으로 덮어쓰지 않아요. 처음부터 다시 정리하려면 ‘다시 정리하기’를 두 번 누르세요.</p>
+      </div>
+
+      <div class="pane" id="pane-prompt" role="tabpanel" aria-labelledby="tab-prompt" hidden>
+        <p class="hint">노션 정리와 별개로, 나중에 Claude에 4종 요약을 맡길 때 쓰는 프롬프트입니다. 갖고 있는 마스터 프롬프트를 붙여넣으면 이 브라우저에 저장돼요.</p>
+        <div class="chips">
+          <span class="hint">눌러서 넣기:</span>
+          <button class="chip" type="button" data-ins="{{수업}}">{{수업}}</button>
+          <button class="chip" type="button" data-ins="{{날짜}}">{{날짜}}</button>
+          <button class="chip" type="button" data-ins="{{강조점}}">{{강조점}}</button>
+          <button class="chip" type="button" data-ins="{{녹취록}}">{{녹취록}}</button>
+          <span class="spacer"></span>
+          <button class="btn ghost sm" id="btn-master-reset" type="button">기본 프롬프트로</button>
+        </div>
+        <textarea id="master" class="big mono" aria-label="마스터 프롬프트"></textarea>
+        <div class="meta-row">
+          <span id="master-status">{{녹취록}} 자리가 없으면 맨 끝에 붙습니다.</span>
+          <button class="btn outline sm" id="btn-copy-prompt" type="button">프롬프트 + 녹취록 복사</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  'use strict';
+  var $ = function (s) { return document.querySelector(s); };
+  var $$ = function (s) { return Array.prototype.slice.call(document.querySelectorAll(s)); };
+
+  /* ---------- 저장소 (실패해도 앱은 동작) ---------- */
+  var KEY = 'lecture-prep:';
+  var store = {
+    get: function (k, d) { try { var v = localStorage.getItem(KEY + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+    set: function (k, v) { try { localStorage.setItem(KEY + k, JSON.stringify(v)); } catch (e) {} }
+  };
+
+  var DEFAULT_FILLERS = '어, 어어, 음, 음음, 으음, 흠, 엄, 에, 아, 그니까, 근까, 뭐지, 뭐랄까, 뭐냐면, 있잖아, 저기';
+  var DEFAULT_FIXES = '도아, 도화, 도와, 노아, 소아, 소화 → 도하';
+  var OLD_DEFAULT_FIXES = ['도아, 도화, 도와 → 도하'];
+  // 이름이 끝나는 자리: 조사가 붙거나(도아야, 소화가), 엄마·아빠·네가 붙거나(도아엄마), 띄어쓰기·문장부호·줄 끝(도아 엄마)
+  // 그 밖의 글자가 이어지면(도와줘, 도화지, 소아과) 다른 낱말이므로 그대로 둠
+  var NAME_END = '(?:(?:야|가|는|랑|를|의|한테|에게|하고)(?:는|도|요)?(?![가-힣])|엄마|아빠|네|[^가-힣]|$)';
+  var SPLIT_AT = 1200; // 노션 블록 하나에 담을 최대 글자 수 (문장 단위로 끊음)
+
+  var DEFAULT_MASTER = [
+    '당신은 수업 내용을 정리해 주는 학습 코치입니다.',
+    '아래는 {{수업}} 수업({{날짜}})의 녹취록입니다. 음성 인식 특성상 오탈자나 끊긴 문장이 있을 수 있으니 문맥에 맞게 바로잡아 이해해 주세요.',
+    '',
+    '[선생님 강조점]',
+    '{{강조점}}',
+    '',
+    '위 강조점을 최우선으로 반영해서, 아래 4가지 형식으로 정리해 주세요.',
+    '',
+    '## 1. 핵심 3줄 요약',
+    '## 2. 구조화 노트 (대주제 → 소주제 → 세부, 정의·공식·예시 포함)',
+    '## 3. 강조 포인트 & 시험 대비 (내용 | 왜 중요한지 | 녹취 근거 문장 표)',
+    '## 4. 복습 퀴즈 (객관식 3, 서술형 2, 정답·해설)',
+    '',
+    '녹취록에 없는 내용은 지어내지 말고, 추측한 부분은 (추정)이라고 표시해 주세요.',
+    '',
+    '---',
+    '[녹취록]',
+    '{{녹취록}}'
+  ].join('\n');
+
+  var el = {
+    raw: $('#raw'), clean: $('#clean'), doc: $('#doc'), master: $('#master'),
+    date: $('#date'), round: $('#round'), period: $('#period'), emph: $('#emph'), custom: $('#lesson-custom'),
+    fillers: $('#filler-list'), fixes: $('#fix-list'),
+    speaker: $('#o-speaker'), seg: $('#o-seg'), file: $('#file'), drop: $('#drop'), toast: $('#toast'),
+    btnClean: $('#btn-clean'), btnCleanLabel: $('#btn-clean-label')
+  };
+  var OPT_IDS = ['o-fillers', 'o-ts', 'o-hes', 'o-dup', 'o-merge', 'o-split', 'o-header', 'o-meta'];
+
+  var DAY_LESSON = { 2: 'VBA', 4: '화용', 6: '화용' }; // 요일(0=일) → 기본 수업: 화 VBA, 목·토 화용
+  var state = { manual: false, cleanedOnce: false, dateTouched: false, duration: '' };
+
+  /* ---------- 유틸 ---------- */
+  function fmt(n) { return n.toLocaleString('ko-KR'); }
+  function escRe(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+  function escHtml(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  function todayISO() { var d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  function dayName(iso) { var p = iso.split('-').map(Number); var d = new Date(p[0], p[1] - 1, p[2]); return isNaN(d) ? '' : '일월화수목금토'.charAt(d.getDay()); }
+  function fmtDate(iso) {
+    if (!iso) return '날짜 미기재';
+    var p = iso.split('-').map(Number);
+    return p[0] + '년 ' + p[1] + '월 ' + p[2] + '일 (' + dayName(iso) + ')';
+  }
+  function shortDate(iso) {
+    if (!iso) return '';
+    var p = iso.split('-');
+    return p[0] + '.' + p[1] + '.' + p[2] + ' (' + dayName(iso) + ')';
+  }
+  function toSec(t) { var p = t.split(':').map(Number); return p.length === 3 ? p[0] * 3600 + p[1] * 60 + p[2] : p[0] * 60 + p[1]; }
+  function clock(s) { var h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60; return (h ? h + ':' + pad(m) : pad(m)) + ':' + pad(x); }
+  var toastTimer;
+  function toast(msg) {
+    el.toast.textContent = msg; el.toast.classList.add('show');
+    clearTimeout(toastTimer); toastTimer = setTimeout(function () { el.toast.classList.remove('show'); }, 2800);
+  }
+
+  /* ---------- 전처리 엔진 ---------- */
+  function opts() {
+    var o = {};
+    OPT_IDS.forEach(function (id) { o[id.slice(2)] = $('#' + id).checked; });
+    o.speaker = el.speaker.value;
+    o.seg = +el.seg.value;
+    return o;
+  }
+
+  function buildFillerRe(list) {
+    var words = list.split(/[,\n]/).map(function (s) { return s.trim(); }).filter(Boolean)
+      .sort(function (a, b) { return b.length - a.length; }).map(escRe);
+    if (!words.length) return null;
+    // 앞뒤가 공백/문장부호/줄 끝인 "단어 전체"만 지움 → '어제', '음식'은 건드리지 않음
+    return new RegExp('(^|[\\s,.!?…])(?:' + words.join('|') + ')+[.…,~!?]*(?=[\\s,.!?…]|$)', 'g');
+  }
+
+  // "도아, 도화 → 도하" 줄들을 정규식 목록으로. 낱말 첫머리에서 시작하고 NAME_END로 끝나는 경우만 바꿈
+  function buildFixes(text) {
+    return text.split('\n').map(function (line) {
+      var p = line.split(/→|->|=>/);
+      if (p.length < 2) return null;
+      var to = p[1].trim();
+      var froms = p[0].split(',').map(function (s) { return s.trim(); }).filter(function (s) { return s && s !== to; })
+        .sort(function (a, b) { return b.length - a.length; }).map(escRe);
+      if (!to || !froms.length) return null;
+      return { re: new RegExp('(^|[^가-힣A-Za-z0-9])(' + froms.join('|') + ')(?=' + NAME_END + ')', 'g'), to: to };
+    }).filter(Boolean);
+  }
+
+  // 원래 뜻으로 쓰인 말 알아보기: 앞뒤 낱말을 보고 판단 (소화가 잘 돼, 좀 도와, 소아 환자 등)
+  var SENSE_RULES = {
+    '소화': function (c) {
+      return /^(?:(?:잘|안|못|다|좀|제대로|너무|진짜)\s*){0,2}(되|돼|됐|된|될|시키|시켜|시킨|시킬|시켰)/.test(c.rest) ||
+        /^(불량|기능|기관|효소|과정|흡수|작용|기|제|액|능력)/.test(c.next) ||
+        /(을|를)$/.test(c.prev);
+    },
+    '도와': function (c) {
+      if (c.attached === '' && (/^(주|줘|줄|준|줍|줬|드|달|봐|보|볼|본|놓)/.test(c.next) || c.endsSentence)) return true;
+      if (c.attached === '야' && /^(해|돼|되|하|지|겠|할|했|한다|된다)/.test(c.next)) return true;
+      return /(을|를|좀)$/.test(c.prev) || /^(서로|같이|좀|많이|꼭|못|안|잘|다|제가|내가|우리가|네가|니가)$/.test(c.prev);
+    },
+    '소아': function (c) {
+      return (c.attached === '' || c.attached === '의') &&
+        /^(과|청소년|환자|언어|발달|비만|당뇨|치료|재활|병원|정신|전문|의학|암|시기|질환|장애|기)/.test(c.next);
+    }
+  };
+  function isOriginalMeaning(word, before, after) {
+    var rule = SENSE_RULES[word];
+    if (!rule) return false;
+    var attached = after.match(/^[가-힣]*/)[0];
+    var tail = after.slice(attached.length);
+    var rest = tail.replace(/^\s+/, '');
+    return rule({
+      attached: attached,
+      rest: rest,
+      next: (rest.match(/^[가-힣]+/) || [''])[0],
+      prev: ((before.match(/([가-힣]+)[\s,]*$/) || ['', ''])[1]),
+      endsSentence: /^\s*([.!?~…]|$)/.test(tail)
+    });
+  }
+
+  var SPK_RE =/^([^\s.,!?:\d#*>-][^.,!?]{0,19}?)\s+\[?(\d{1,2}:\d{2}(?::\d{2})?)\]?$/;
+  var HEAD_RE = /^\d{4}\s*[.\-\/년]\s*\d{1,2}\s*[.\-\/월]\s*\d{1,2}.*(?:분|초|오전|오후|\d:\d{2})/;
+  var DATE_RE = /(\d{4})\s*[.\-\/년]\s*(\d{1,2})\s*[.\-\/월]\s*(\d{1,2})/;
+  var DUR_RE = /(\d+\s*시간\s*)?\d+\s*분(\s*\d+\s*초)?/;
+  var LABEL_RE = /^(참석자|화자|speaker)\s*\d+$/i;
+  var TIME_ONLY = /^\[?\d{1,2}:\d{2}(?::\d{2})?\]?$/;
+
+  function parse(raw, o, stats) {
+    var lines = raw.replace(/\r\n?/g, '\n').replace(/[\u200B-\u200D\uFEFF]/g, '').replace(/\u00A0/g, ' ').split('\n');
+    var blocks = [], cur = null, seenSpeaker = false, date = null, duration = '', known = {};
+    for (var i = 0; i < lines.length; i++) {
+      var t = lines[i].trim();
+      if (!t) continue;
+      if (!seenSpeaker && HEAD_RE.test(t)) {
+        var dm = t.match(DATE_RE);
+        if (dm && !date) date = dm[1] + '-' + pad(+dm[2]) + '-' + pad(+dm[3]);
+        var du = t.replace(DATE_RE, '').match(DUR_RE);
+        if (du && !duration) duration = du[0].replace(/\s+/g, ' ').trim();
+        if (o.header) { stats.header++; continue; }
+      }
+      var prevBlank = i === 0 || !lines[i - 1].trim();
+      // 복사 형식 차이 흡수: "참석자 1" 다음 줄에 시간만 있으면 한 줄로 합침
+      if (LABEL_RE.test(t)) {
+        var j = i + 1;
+        while (j < lines.length && !lines[j].trim()) j++;
+        if (j < lines.length && TIME_ONLY.test(lines[j].trim())) { t += ' ' + lines[j].trim().replace(/[\[\]]/g, ''); i = j; }
+      }
+      // 빈 줄 없이 붙어 있어도 '참석자 N'이나 이미 나온 화자 이름이면 화자 줄로 인정
+      var m = SPK_RE.exec(t);
+      if (m && !(prevBlank || LABEL_RE.test(m[1].trim()) || known[m[1].trim()])) m = null;
+      if (!m && LABEL_RE.test(t)) m = [t, t, ''];
+      if (m) {
+        seenSpeaker = true;
+        known[m[1].trim()] = true;
+        cur = { speaker: m[1].trim(), time: m[2], parts: [] };
+        blocks.push(cur);
+        if (o.ts && m[2]) stats.ts++;
+        continue;
+      }
+      if (o.ts && TIME_ONLY.test(t)) { stats.ts++; continue; }
+      if (seenSpeaker && cur) cur.parts.push(t);
+      else blocks.push({ speaker: '', time: '', parts: [t] }); // 화자 표시가 없는 글은 줄 단위로 유지
+    }
+    return { blocks: blocks, date: date, duration: duration };
+  }
+
+  function applyFixes(s, fixes, stats) {
+    (fixes || []).forEach(function (f) {
+      s = s.replace(f.re, function (m, p, w, off, str) {
+        var end = off + m.length;
+        if (isOriginalMeaning(w, str.slice(0, off + p.length), str.slice(end))) { stats.kept++; return m; }
+        stats.fixes++; return p + f.to;
+      });
+    });
+    return s;
+  }
+
+  function cleanText(s, o, stats, fRe, fixes) {
+    if (o.ts) {
+      s = s.replace(/[\[(]\s*\d{1,2}:\d{2}(?::\d{2})?\s*[\])]/g, function () { stats.ts++; return ' '; })
+           .replace(/^\d{1,2}:\d{2}(?::\d{2})?\s+/, function () { stats.ts++; return ''; });
+    }
+    if (o.fillers && fRe) {
+      for (var k = 0; k < 3; k++) {
+        var hit = false;
+        s = s.replace(fRe, function (m, p) { stats.fillers++; hit = true; return p; });
+        if (!hit) break;
+      }
+    }
+    if (o.hes) {
+      s = s.replace(/(^|\s)(?![네예응])[가-힣](?:\.{2,}|…+)(?=\s|$)/g, function (m, p) { stats.fillers++; return p; });
+    }
+    if (o.dup) {
+      s = s.replace(/(^|\s)([가-힣A-Za-z0-9]+)(?:\s+\2)+(?=[\s,.!?]|$)/g, function (m, p, w) { stats.dups++; return p + w; });
+    }
+    // 추임새를 걷어낸 뒤에 이름 교정 → 앞뒤 낱말로 뜻을 판단하기 쉬움
+    s = applyFixes(s, fixes, stats);
+    return s.replace(/[ \t]+/g, ' ')
+      .replace(/\s+([,.!?])/g, '$1')
+      .replace(/,(?:\s*,)+/g, ',')
+      .replace(/,\s*([.!?])/g, '$1')
+      .replace(/\.{4,}/g, '...')
+      .replace(/^[\s,.…~·]+/, '')
+      .replace(/[\s,]+$/, '')
+      .trim();
+  }
+
+  // 긴 문단을 문장 경계에서 끊어 노션 블록 여러 개로
+  function splitLong(text, max) {
+    if (text.length <= max) return [text];
+    var sentences = text.match(/[^.!?。]+(?:[.!?。]+|$)\s*/g) || [text];
+    var out = [], buf = '';
+    sentences.forEach(function (s) {
+      if (buf && (buf + s).length > max) { out.push(buf.trim()); buf = ''; }
+      while (s.length > max) { out.push(s.slice(0, max).trim()); s = s.slice(max); }
+      buf += s;
+    });
+    if (buf.trim()) out.push(buf.trim());
+    return out;
+  }
+
+  // force: 직접 고친 본문이 있어도 새로 정리 (새 녹취록, 사용자가 두 번 눌러 확인한 경우)
+  function runClean(silent, force) {
+    if (state.manual && !force) {
+      setDirty(true);
+      toast('본문을 직접 고친 상태라 자동으로 다시 정리하지 않았어요');
+      return;
+    }
+    state.manual = false;
+    var raw = el.raw.value;
+    var o = opts();
+    var stats = { fillers: 0, ts: 0, dups: 0, header: 0, dropped: 0, fixes: 0, kept: 0 };
+    var fRe = buildFillerRe(el.fillers.value);
+    var fixes = buildFixes(el.fixes.value);
+    var parsed = parse(raw, o, stats);
+
+    // 녹음 정보 줄에서 찾은 날짜를 자동 입력 (사용자가 직접 고친 적 없을 때만)
+    if (parsed.date && !state.dateTouched) el.date.value = parsed.date;
+    applyRecordingDefault(parsed.date);
+    state.duration = parsed.duration;
+
+    var segLen = o.seg * 60;
+    var blocks = [];
+    parsed.blocks.forEach(function (b) {
+      var text = cleanText(b.parts.join(' '), o, stats, fRe, fixes);
+      if (!text) { stats.dropped++; return; }
+      var seg = segLen && b.time ? Math.floor(toSec(b.time) / segLen) : null;
+      var prev = blocks[blocks.length - 1];
+      if (o.merge && prev && b.speaker && prev.speaker === b.speaker && prev.seg === seg) prev.text += ' ' + text;
+      else blocks.push({ speaker: b.speaker, time: b.time, text: text, seg: seg });
+    });
+
+    var parts = [], curSeg = null;
+    blocks.forEach(function (b) {
+      if (b.seg !== null && b.seg !== curSeg) {
+        curSeg = b.seg;
+        parts.push('### ' + clock(b.seg * segLen) + ' – ' + clock((b.seg + 1) * segLen));
+      }
+      var chunks = o.split ? splitLong(b.text, SPLIT_AT) : [b.text];
+      var prefix = '';
+      if (b.speaker && o.speaker === 'keep') {
+        prefix = '**' + b.speaker + '**' + (o.ts || !b.time ? '' : ' `' + b.time + '`') + ' ';
+      }
+      chunks.forEach(function (c, i) { parts.push((i === 0 ? prefix : '') + c); });
+    });
+
+    el.clean.value = parts.join('\n\n');
+    state.cleanedOnce = true;
+    setDirty(false);
+    renderStats(raw.length, el.clean.value.length, stats);
+    state.lastFixes = stats.fixes;
+    $('#fix-count').textContent = raw.trim() ? '이번 녹취록에서 ' + fmt(stats.fixes) + '곳 고쳤어요' + (stats.kept ? ' · 원래 뜻으로 보여 ' + fmt(stats.kept) + '곳은 그대로 둠' : '') : '한 줄에 하나씩 · 틀린 말, 틀린 말 → 바른 말';
+    updateOutput();
+    if (!silent) toast(raw.trim() ? '정리했어요 · 추임새 ' + fmt(stats.fillers) + '개, 타임스탬프 ' + fmt(stats.ts) + '개 제거' + (stats.fixes ? ', 이름 ' + fmt(stats.fixes) + '곳 교정' : '') : '녹취록이 비어 있어요');
+  }
+
+  /* ---------- 노션 문서 만들기 ---------- */
+  function lessonName() {
+    var v = (document.querySelector('input[name="lesson"]:checked') || {}).value || '';
+    return v === '기타' ? (el.custom.value.trim() || '기타') : v;
+  }
+  function setLesson(v) {
+    $$('input[name="lesson"]').forEach(function (r) { r.checked = r.value === v; });
+    el.custom.hidden = v !== '기타';
+  }
+  function dayLesson(iso) {
+    if (!iso) return null;
+    var p = iso.split('-').map(Number);
+    return DAY_LESSON[new Date(p[0], p[1] - 1, p[2]).getDay()] || null;
+  }
+  var LESSON_NOTE = '녹음 날짜가 화요일이면 VBA, 목·토요일이면 화용이 자동으로 골라져요. 그 밖의 요일은 비워 두니 직접 고르세요.';
+  // 녹취록 머리줄의 녹음 날짜로 수업을 고름. 같은 녹음이면 다시 고르지 않아서 직접 바꾼 선택이 유지됨
+  function applyRecordingDefault(recDate) {
+    var note = $('#lesson-note');
+    var v = dayLesson(recDate);
+    if (!recDate) note.textContent = el.raw.value.trim() ? '녹취록에서 녹음 날짜를 못 찾았어요. 날짜 칸을 고치면 그 요일에 맞춰 수업이 골라져요.' : LESSON_NOTE;
+    else note.textContent = '녹음 날짜 ' + fmtDate(recDate) + (v ? ' → ' + v + ' 자동 선택. 다르면 눌러서 바꾸세요.' : ' · 정해진 수업이 없는 요일이라 비워 뒀어요. 직접 고르세요.');
+    var key = recDate || (el.raw.value.trim() ? 'none' : '');
+    if (key === state.recDate) return;
+    state.recDate = key;
+    setLesson(v || '');
+    suggestRound();
+  }
+
+  /* ---------- 회차: 수업별 마지막 회차를 기억해 다음 녹음엔 +1 ---------- */
+  function suggestRound() {
+    var lesson = lessonName(), d = el.date.value;
+    var rec = lesson ? store.get('rounds', {})[lesson] : null;
+    var n = '';
+    if (rec && d) n = rec.date === d ? rec.n : (d > rec.date ? rec.n + 1 : '');
+    el.round.value = n;
+  }
+  function saveRound() {
+    var lesson = lessonName(), n = parseInt(el.round.value, 10), d = el.date.value;
+    if (!lesson || !n || !d) return;
+    var all = store.get('rounds', {});
+    all[lesson] = { n: n, date: d };
+    store.set('rounds', all);
+  }
+  function titleText() {
+    var d = el.date.value.split('-');
+    var ymd = d.length === 3 ? d[0].slice(2) + d[1] + d[2] : '';
+    var lesson = lessonName(), n = parseInt(el.round.value, 10);
+    return ymd + (lesson ? '_' + lesson + (n ? n + '회' : '') : '');
+  }
+
+  function emphLines() {
+    return el.emph.value.split('\n').map(function (l) { return l.replace(/^\s*[-•*·]\s*/, '').trim(); }).filter(Boolean);
+  }
+
+  function headerMd() {
+    var period = el.period.value.trim();
+    var title = titleText() || '수업 녹취';
+    var round = parseInt(el.round.value, 10);
+    var meta = ['**수업** ' + (lessonName() || '미선택') + (round ? ' ' + round + '회' : ''), '**날짜** ' + fmtDate(el.date.value)];
+    if (period) meta.push('**교시·단원** ' + period);
+    if (state.duration) meta.push('**녹음** ' + state.duration);
+    var out = ['# ' + title, meta.join(' · ')];
+    var em = emphLines();
+    if (em.length) out.push('> **선생님 강조점**\n' + em.map(function (l) { return '> • ' + l; }).join('\n'));
+    out.push('---', '## 녹취 전문');
+    return out.join('\n\n');
+  }
+
+  function fullMd() {
+    var body = el.clean.value.trim();
+    return $('#o-meta').checked ? headerMd() + '\n\n' + body : body;
+  }
+
+  function inline(s) {
+    return escHtml(s).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/`([^`]+)`/g, '<code>$1</code>');
+  }
+
+  // 이 앱이 쓰는 마크다운만 다루는 작은 변환기 (제목, 인용, 구분선, 목록, 문단)
+  function mdToHtml(md, hlName) {
+    var out = [], group = null, count = 0, curSpk = null;
+    function flush() {
+      if (!group) return;
+      if (group.type === 'quote') { out.push('<blockquote>' + group.lines.map(inline).join('<br>') + '</blockquote>'); curSpk = null; }
+      else if (group.type === 'list') { out.push('<ul>' + group.lines.map(function (l) { return '<li>' + inline(l) + '</li>'; }).join('') + '</ul>'); curSpk = null; }
+      else {
+        // **이름** 으로 시작하면 그 화자의 문단, 이름 없는 다음 문단은 긴 발언을 나눈 이어지는 부분
+        var sm = group.lines[0].match(/^\*\*(.+?)\*\*/);
+        if (sm) curSpk = sm[1];
+        out.push('<p' + (hlName && curSpk === hlName ? ' class="hl"' : '') + '>' + group.lines.map(inline).join('<br>') + '</p>');
+      }
+      count++; group = null;
+    }
+    md.split('\n').forEach(function (line) {
+      var t = line.trim(), m;
+      if (!t) { flush(); return; }
+      if (/^-{3,}$/.test(t)) { flush(); out.push('<hr>'); count++; curSpk = null; return; }
+      if ((m = t.match(/^(#{1,3})\s+(.+)$/))) { flush(); out.push('<h' + m[1].length + '>' + inline(m[2]) + '</h' + m[1].length + '>'); count++; curSpk = null; return; }
+      var type = 'p', text = t;
+      if (/^>/.test(t)) { type = 'quote'; text = t.replace(/^>\s?/, ''); }
+      else if (/^[-*]\s+/.test(t)) { type = 'list'; text = t.replace(/^[-*]\s+/, ''); }
+      if (group && group.type !== type) flush();
+      if (!group) group = { type: type, lines: [] };
+      group.lines.push(text);
+    });
+    flush();
+    return { html: out.join('\n'), blocks: count };
+  }
+
+  function updateOutput() {
+    var md = fullMd();
+    var r = mdToHtml(md);
+    var shown = r.html;
+    el.doc.innerHTML = shown || '<p style="color:var(--muted)">왼쪽에서 녹취록을 넣으면 노션에 붙을 모양이 여기에 보입니다.</p>';
+    $('#n-blocks').textContent = fmt(r.blocks);
+    $('#n-clean').textContent = fmt(el.clean.value.length);
+    $('#title-preview').textContent = titleText() || '–';
+    $('#final-info').textContent = fmt(md.length) + '자 · 노션 블록 ' + fmt(r.blocks) + '개 · ' + (lessonName() ? titleText() : '수업을 골라 주세요');
+    return { md: md, html: r.html };
+  }
+
+  function setDirty(on) {
+    el.btnClean.classList.toggle('dirty', on);
+    el.btnClean.classList.remove('confirm');
+    el.btnCleanLabel.textContent = state.manual ? '다시 정리하기 (직접 고친 내용 사라짐)'
+      : on ? '바뀐 내용으로 다시 정리하기' : (state.cleanedOnce ? '다시 정리하기' : '노이즈 정리하기');
+  }
+
+  function renderStats(rawLen, cleanLen, s) {
+    $('#s-raw').innerHTML = fmt(rawLen) + '<small>자</small>';
+    $('#s-clean').innerHTML = fmt(cleanLen) + '<small>자</small>';
+    $('#s-fill').innerHTML = fmt(s.fillers + s.dups) + '<small>개</small>';
+    $('#s-ts').innerHTML = fmt(s.ts) + '<small>개</small>';
+    $('#s-red').textContent = rawLen ? '−' + Math.max(0, Math.round((1 - cleanLen / rawLen) * 100)) + '%' : '–';
+  }
+
+  function updateRawMeta() {
+    var v = el.raw.value;
+    $('#raw-count').textContent = fmt(v.length) + '자';
+    $('#raw-lines').textContent = fmt(v ? v.split('\n').length : 0) + '줄';
+  }
+
+  /* ---------- 입력: 파일 ---------- */
+  function decode(buf) {
+    var b = new Uint8Array(buf);
+    if (b[0] === 0xFF && b[1] === 0xFE) return new TextDecoder('utf-16le').decode(b);
+    if (b[0] === 0xFE && b[1] === 0xFF) return new TextDecoder('utf-16be').decode(b);
+    try { return new TextDecoder('utf-8', { fatal: true }).decode(b); }
+    catch (e) { try { return new TextDecoder('euc-kr').decode(b); } catch (e2) { return new TextDecoder().decode(b); } }
+  }
+
+  function readFiles(files) {
+    files = Array.prototype.slice.call(files || []).filter(function (f) { return /\.txt$/i.test(f.name) || /^text\//.test(f.type); });
+    if (!files.length) { toast('.txt 파일만 읽을 수 있어요'); return; }
+    Promise.all(files.map(function (f) {
+      return new Promise(function (res, rej) {
+        var r = new FileReader();
+        r.onload = function () { res(decode(r.result)); };
+        r.onerror = function () { rej(f.name); };
+        r.readAsArrayBuffer(f);
+      });
+    })).then(function (texts) {
+      loadRaw(texts.join('\n\n'), files.length + '개 파일을 불러와 바로 정리했어요');
+    }).catch(function (name) { toast(name + ' 파일을 읽지 못했어요. 다시 시도해 주세요.'); });
+  }
+
+  /* ---------- 입력: 클립보드 붙여넣기 ---------- */
+  function loadRaw(text, msg) {
+    if (!text || !text.trim()) { toast('클립보드가 비어 있어요. 클로바노트에서 먼저 복사해 주세요'); return; }
+    if (!$('#sample-badge').hidden) { el.emph.value = ''; el.period.value = ''; } // 예시 값은 새 녹취록과 섞이지 않게 비움
+    el.raw.value = text;
+    $('#sample-badge').hidden = true;
+    state.dateTouched = false;
+    updateRawMeta();
+    runClean(true, true);
+    toast((msg || '붙여넣고 바로 정리했어요') + ' · ' + fmt(text.length) + '자' + (state.lastFixes ? ' · 이름 ' + fmt(state.lastFixes) + '곳 교정' : ''));
+  }
+
+  function pasteFallback() {
+    el.raw.focus(); el.raw.select();
+    toast('버튼으로는 클립보드를 못 읽는 환경이에요. 지금 Ctrl+V (폰은 길게 눌러 붙여넣기)를 눌러 주세요');
+  }
+  $('#btn-paste').addEventListener('click', function () {
+    var cb = navigator.clipboard;
+    if (cb && cb.readText) cb.readText().then(function (t) { loadRaw(t); }, pasteFallback);
+    else pasteFallback();
+  });
+
+  // 화면 어디서든 Ctrl+V → 원문 교체 후 바로 정리. 다른 입력칸에선 평소처럼 동작
+  document.addEventListener('paste', function (e) {
+    var t = e.target;
+    var data = e.clipboardData ? e.clipboardData.getData('text') : '';
+    if (t === el.raw) {
+      var all = el.raw.selectionStart === 0 && el.raw.selectionEnd === el.raw.value.length;
+      if (!el.raw.value.trim() || all || !$('#sample-badge').hidden) { e.preventDefault(); loadRaw(data); }
+      else setTimeout(function () { updateRawMeta(); runClean(true); }, 0);
+      return;
+    }
+    if (t && t.closest && t.closest('textarea, input, select, [contenteditable]')) return;
+    e.preventDefault();
+    loadRaw(data);
+  });
+
+  el.file.addEventListener('change', function () { readFiles(el.file.files); el.file.value = ''; });
+  ['dragenter', 'dragover'].forEach(function (ev) {
+    document.addEventListener(ev, function (e) { e.preventDefault(); if (e.target.closest && e.target.closest('#drop')) el.drop.classList.add('over'); });
+  });
+  document.addEventListener('dragleave', function (e) { if (!e.relatedTarget || !el.drop.contains(e.relatedTarget)) el.drop.classList.remove('over'); });
+  document.addEventListener('drop', function (e) {
+    e.preventDefault(); el.drop.classList.remove('over');
+    if (e.dataTransfer && e.dataTransfer.files.length) readFiles(e.dataTransfer.files);
+  });
+
+  /* ---------- 복사 ---------- */
+  function ensureClean() {
+    if (!el.raw.value.trim() && !el.clean.value.trim()) { toast('먼저 녹취록을 넣어 주세요'); return false; }
+    if (!state.cleanedOnce || (el.btnClean.classList.contains('dirty') && !state.manual)) runClean(true);
+    return true;
+  }
+
+  // 서식 복사가 막힌 환경용: 화면 밖 요소를 선택해서 복사
+  function legacyCopy(html, text) {
+    var node;
+    if (html) { node = document.createElement('div'); node.innerHTML = html; }
+    else { node = document.createElement('textarea'); node.value = text; node.setAttribute('readonly', ''); }
+    node.style.cssText = 'position:fixed;top:0;left:-9999px;white-space:pre-wrap;';
+    document.body.appendChild(node);
+    if (html) { var r = document.createRange(); r.selectNodeContents(node); var sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); }
+    else { node.select(); }
+    var ok = false; try { ok = document.execCommand('copy'); } catch (e) {}
+    if (html) getSelection().removeAllRanges();
+    document.body.removeChild(node);
+    return ok;
+  }
+
+  function copy(text, html, okMsg) {
+    var done = function () { toast(okMsg); };
+    var fail = function () {
+      if (legacyCopy(html, text)) { done(); return; }
+      selectTab('edit'); el.clean.focus(); el.clean.select();
+      toast('자동 복사가 막혀 있어요. 본문을 직접 선택해서 복사해 주세요');
+    };
+    var cb = navigator.clipboard;
+    if (html && cb && cb.write && window.ClipboardItem) {
+      var item = new ClipboardItem({
+        'text/html': new Blob(['<meta charset="utf-8">' + html], { type: 'text/html' }),
+        'text/plain': new Blob([text], { type: 'text/plain' })
+      });
+      cb.write([item]).then(done, function () { cb.writeText(text).then(done, fail); });
+    } else if (cb && cb.writeText) cb.writeText(text).then(done, fail);
+    else fail();
+  }
+
+  $('#btn-copy').addEventListener('click', function () {
+    if (!ensureClean()) return;
+    saveRound();
+    var r = updateOutput();
+    copy(r.md, r.html,'복사했어요 · 노션 페이지 본문에 붙여넣으세요 (Ctrl+V / ⌘V)');
+  });
+  $('#btn-copy-md').addEventListener('click', function () {
+    if (!ensureClean()) return;
+    var r = updateOutput();
+    copy(r.md, null, '마크다운 텍스트로 복사했어요');
+  });
+
+  function buildPrompt() {
+    var tpl = el.master.value.trim() ? el.master.value : DEFAULT_MASTER;
+    var period = el.period.value.trim();
+    var em = emphLines();
+    var v = {
+      '수업': lessonName() + (period ? ' · ' + period : ''),
+      '날짜': fmtDate(el.date.value),
+      '강조점': em.length ? em.map(function (l) { return '- ' + l; }).join('\n') : '(따로 적은 강조점 없음. 선생님이 반복하거나 "중요", "시험"이라고 말한 부분을 직접 찾아 주세요.)',
+      '녹취록': el.clean.value.trim() || '(녹취록 없음)'
+    };
+    var out = tpl.replace(/\{\{\s*(수업|날짜|강조점|녹취록)\s*\}\}/g, function (m, k) { return v[k]; });
+    if (!/\{\{\s*녹취록\s*\}\}/.test(tpl)) out = out.replace(/\s+$/, '') + '\n\n---\n[녹취록]\n' + v['녹취록'];
+    return out;
+  }
+  $('#btn-copy-prompt').addEventListener('click', function () {
+    if (!ensureClean()) return;
+    var p = buildPrompt();
+    copy(p, null, '프롬프트를 복사했어요 · ' + fmt(p.length) + '자');
+  });
+
+  /* ---------- 탭 ---------- */
+  function selectTab(name) {
+    ['preview', 'edit', 'prompt'].forEach(function (n) {
+      $('#tab-' + n).setAttribute('aria-selected', String(n === name));
+      $('#pane-' + n).hidden = n !== name;
+    });
+    store.set('tab', name);
+  }
+  $$('.tab').forEach(function (t) { t.addEventListener('click', function () { selectTab(t.id.slice(4)); }); });
+
+  /* ---------- 이벤트 ---------- */
+  // 직접 고친 본문이 있으면 한 번 더 눌러야 덮어씀 (브라우저 확인창 대신 버튼에서 확인)
+  var confirmTimer;
+  el.btnClean.addEventListener('click', function () {
+    if (state.manual && !el.btnClean.classList.contains('confirm')) {
+      el.btnClean.classList.add('confirm');
+      el.btnCleanLabel.textContent = '한 번 더 누르면 직접 고친 내용이 사라져요';
+      clearTimeout(confirmTimer);
+      confirmTimer = setTimeout(function () { setDirty(el.btnClean.classList.contains('dirty')); }, 4000);
+      return;
+    }
+    clearTimeout(confirmTimer);
+    runClean(false, true);
+  });
+  el.raw.addEventListener('input', function () {
+    updateRawMeta(); $('#sample-badge').hidden = true;
+    if (state.cleanedOnce) setDirty(true);
+  });
+  el.clean.addEventListener('input', function () {
+    if (!state.manual) { state.manual = true; setDirty(el.btnClean.classList.contains('dirty')); }
+    updateOutput();
+  });
+  [el.period, el.emph, el.custom].forEach(function (x) { x.addEventListener('input', updateOutput); });
+  el.date.addEventListener('input', function () {
+    state.dateTouched = true;
+    setLesson(dayLesson(el.date.value) || '');
+    suggestRound();
+    updateOutput();
+  });
+  el.round.addEventListener('input', function () { saveRound(); updateOutput(); });
+  $('#btn-copy-title').addEventListener('click', function () {
+    var t = titleText();
+    if (!lessonName()) { toast('수업을 먼저 골라 주세요'); return; }
+    saveRound();
+    copy(t, null, '제목을 복사했어요 · ' + t);
+  });
+
+  $$('input[name="lesson"]').forEach(function (r) {
+    r.addEventListener('change', function () {
+      el.custom.hidden = r.value !== '기타' || !r.checked;
+      if (r.value === '기타' && r.checked) el.custom.focus();
+      suggestRound(); updateOutput();
+    });
+  });
+
+  function saveOpts() {
+    var o = {}; OPT_IDS.forEach(function (id) { o[id] = $('#' + id).checked; });
+    o.speaker = el.speaker.value; o.seg = el.seg.value;
+    store.set('opts', o);
+  }
+  OPT_IDS.concat(['o-speaker', 'o-seg']).forEach(function (id) {
+    $('#' + id).addEventListener('change', function () {
+      saveOpts();
+      if (id === 'o-meta') updateOutput();
+      else if (state.cleanedOnce) runClean(true);
+    });
+  });
+
+  var fillerTimer;
+  el.fillers.addEventListener('input', function () {
+    store.set('fillers', el.fillers.value);
+    clearTimeout(fillerTimer); fillerTimer = setTimeout(function () { if (state.cleanedOnce) runClean(true); }, 300);
+  });
+  var fixTimer;
+  el.fixes.addEventListener('input', function () {
+    store.set('fixes', el.fixes.value);
+    clearTimeout(fixTimer); fixTimer = setTimeout(function () { if (state.cleanedOnce) runClean(true); }, 300);
+  });
+  $('#btn-fix-reset').addEventListener('click', function () {
+    el.fixes.value = DEFAULT_FIXES; store.set('fixes', DEFAULT_FIXES);
+    if (state.cleanedOnce) runClean(true);
+  });
+
+  $('#btn-filler-reset').addEventListener('click', function () {
+    el.fillers.value = DEFAULT_FILLERS; store.set('fillers', DEFAULT_FILLERS);
+    if (state.cleanedOnce) runClean(true);
+  });
+
+  var masterTimer;
+  el.master.addEventListener('input', function () {
+    clearTimeout(masterTimer);
+    masterTimer = setTimeout(function () { store.set('master', el.master.value); $('#master-status').textContent = '저장했어요 · 이 브라우저에서 다음에도 그대로 쓰입니다.'; }, 400);
+  });
+  $('#btn-master-reset').addEventListener('click', function () {
+    el.master.value = DEFAULT_MASTER; store.set('master', null); toast('기본 프롬프트로 되돌렸어요');
+  });
+  $$('.chip').forEach(function (c) {
+    c.addEventListener('click', function () {
+      var ins = c.getAttribute('data-ins'), ta = el.master;
+      var s = ta.selectionStart, e = ta.selectionEnd;
+      if (ta.setRangeText) ta.setRangeText(ins, s, e, 'end'); else ta.value = ta.value.slice(0, s) + ins + ta.value.slice(e);
+      ta.focus(); ta.dispatchEvent(new Event('input'));
+    });
+  });
+
+  var DROP_HINT = '클로바노트 → 노트 → 다운로드 → 텍스트(.txt) · 여러 개면 순서대로 합칩니다';
+  $('#btn-clear').addEventListener('click', function () {
+    el.raw.value = ''; el.clean.value = ''; el.emph.value = ''; el.period.value = '';
+    el.date.value = todayISO(); state.recDate = ''; setLesson(''); el.round.value = ''; $('#lesson-note').textContent = LESSON_NOTE; state.dateTouched = false; state.cleanedOnce = false; state.duration = ''; state.manual = false;
+    $('#sample-badge').hidden = true; $('#file-name').textContent = DROP_HINT;
+    updateRawMeta(); setDirty(false);
+    renderStats(0, 0, { fillers: 0, dups: 0, ts: 0 }); updateOutput(); el.raw.focus();
+  });
+  $('#btn-sample').addEventListener('click', function () { loadSample(); toast('예시 녹취록을 불러왔어요'); });
+
+  /* ---------- 예시 데이터 ---------- */
+  function loadSample() {
+    var d = new Date();
+    var head = d.getFullYear() + '.' + pad(d.getMonth() + 1) + '.' + pad(d.getDate()) + ' ' + '일월화수목금토'.charAt(d.getDay()) + ' 오후 2:03 ・ 47분 12초';
+    el.raw.value = [
+      '화용 수업', head, '',
+      '참석자 1 00:00', '자 어... 오늘은 음 화용 언어 발달, 그니까 아이들이 말을 상황에 맞게 쓰는 능력을 볼 거예요.', '',
+      '참석자 1 00:18', '어 그... 먼저 화용은 음 말의 형식보다 쓰임에 관한 거예요. 요청하기, 대화 차례 지키기, 주제 유지하기 이런 거. 이거 이거 시험에 꼭 나옵니다.', '',
+      '참석자 2 00:41', '선생님 그럼 어린이집에서 관찰할 때는 뭘 봐야 돼요?', '',
+      '참석자 1 00:45', '네 좋아요. 어어 놀이 상황에서 도아가 친구한테 장난감을 달라고 할 때 어떻게 요청하는지, 음... 그니까 "줘"라고 하는지 "도와줄래?"라고 하는지 보면 돼요. 도화는 요즘 도화지에 그림 그리면서 말이 많이 늘었어요.', '',
+      '참석자 1 01:20', '아 그리고 저... 대화 차례 주고받기는 만 3세 전후로 크게 늘어요. 여기 중요해요, 별표 두 개.', '',
+      '참석자 1 09:52', '뭐랄까 문법은 맞는데 상황에 안 맞게 말하는 아이, 이게 화용 문제라고 기억하면 돼요.', '',
+      '참석자 2 10:10', '음 그럼 평가는 뭘로 해요?', '',
+      '참석자 1 10:14', '좋은 질문. 어 체크리스트랑 자연스러운 놀이 관찰을 같이 써요. 검사 하나로만 판단하면 안 돼요.', '',
+      '참석자 1 12:40', '자 다음 시간까지 교재 84쪽부터 87쪽 읽고 관찰 기록지 한 장 써 오세요. 음 과제에 들어갑니다.'
+    ].join('\n');
+    el.emph.value = '대화 차례 주고받기는 만 3세 전후로 크게 늘어남 (별표 두 개)\n화용 = 형식보다 쓰임. 문법은 맞아도 상황에 안 맞으면 화용 문제';
+    el.period.value = '화용 언어 발달';
+    $('#sample-badge').hidden = false;
+    $('#file-name').textContent = DROP_HINT;
+    state.dateTouched = false;
+    updateRawMeta();
+    runClean(true, true);
+  }
+
+  /* ---------- 시작 ---------- */
+  (function init() {
+    el.master.value = store.get('master', null) || DEFAULT_MASTER;
+    el.fillers.value = store.get('fillers', DEFAULT_FILLERS);
+    var savedFixes = store.get('fixes', null);
+    el.fixes.value = !savedFixes || OLD_DEFAULT_FIXES.indexOf(savedFixes.trim()) >= 0 ? DEFAULT_FIXES : savedFixes;
+    var o = store.get('opts', null);
+    if (o) {
+      OPT_IDS.forEach(function (id) { if (id in o) $('#' + id).checked = !!o[id]; });
+      if (o.speaker) el.speaker.value = o.speaker;
+      if (o.seg != null) el.seg.value = o.seg;
+    }
+    setLesson(''); // 녹취록을 넣기 전엔 수업을 비워 둠
+    el.date.value = todayISO();
+    var tab = store.get('tab', 'preview');
+    selectTab(['preview', 'edit', 'prompt'].indexOf(tab) >= 0 ? tab : 'preview');
+    // 빈 화면으로 시작 (예시는 '예시 불러오기' 버튼으로만)
+    updateRawMeta(); setDirty(false);
+    renderStats(0, 0, { fillers: 0, dups: 0, ts: 0 });
+    updateOutput();
+  })();
+})();
+</script>
+</body>
+</html>
